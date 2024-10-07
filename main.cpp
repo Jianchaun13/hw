@@ -11,7 +11,7 @@
 
 void setupUi(QWidget*);
 void leader(QTabWidget*, QTextBrowser*&);
-void change_color(QTabWidget*, QTextBrowser*);
+void change_color(QTextBrowser*);
 void changeFont(QTabWidget* tabWidget, const QFont& font);
 
 int main(int argc, char *argv[])
@@ -48,10 +48,20 @@ void setupUi(QWidget *windows)
     QWidget* tab_1 = new QWidget;
     tab_1->setObjectName("tab1");
     tabWidget->addTab(tab_1, "組員1");
+    // 新增按鈕來改變顏色
+    QPushButton* colorButton = new QPushButton("改變顏色", tab_1);
+    QVBoxLayout* tabLayout1 = new QVBoxLayout(tab_1);
+    tabLayout1->addWidget(colorButton);
+    tab_1->setLayout(tabLayout1);
+    // 連接按鈕點擊事件到 change_color 函數
+    QObject::connect(colorButton, &QPushButton::clicked, [=]() {
+        change_color(leaderTextBrowser);
+    });
 
     // Tab 3 - 組員2
     QWidget* tab_2 = new QWidget;
     tab_2->setObjectName("tab2");
+    tabWidget->addTab(tab_2, "組員2");
     QVBoxLayout* layout_2 = new QVBoxLayout(tab_2);
     QPushButton* button = new QPushButton("Font select", tab_2);
     //加入點按鈕的事件
@@ -65,7 +75,6 @@ void setupUi(QWidget *windows)
     });
     layout_2->addWidget(button);
     tab_2->setLayout(layout_2);
-    tabWidget->addTab(tab_2, "組員2");
 
     // Tab 3 - 組員3
     QWidget* tab_3 = new QWidget;
@@ -104,6 +113,27 @@ void leader(QTabWidget* tabWidget, QTextBrowser*& leaderTextBrowser) {
     tab->setLayout(tabLayout);
     tabWidget->addTab(tab, "隊長");
 }
+
+void change_color(QTextBrowser* leaderTextBrowser) {
+    QColor color = QColorDialog::getColor(Qt::black, nullptr, "選擇顏色");
+
+    if (color.isValid()) {
+        // 設置 QTextCursor 並選擇整個文本
+        QTextCursor cursor = leaderTextBrowser->textCursor();
+        cursor.select(QTextCursor::Document);
+
+        // 創建文本格式，並設置文本顏色
+        QTextCharFormat format;
+        format.setForeground(color);
+
+        // 將新格式應用到選取的文本
+        cursor.mergeCharFormat(format);
+
+        // 更新 QTextBrowser 中的文本格式
+        leaderTextBrowser->setTextCursor(cursor);
+    }
+}
+
 void changeFont(QTabWidget* tabWidget, const QFont& font) {     //這是改變字體的函式  GOOD
     for (int i = 0; i < tabWidget->count(); ++i) {
         QWidget* tab = tabWidget->widget(i);
