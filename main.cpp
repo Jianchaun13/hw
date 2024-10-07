@@ -7,10 +7,12 @@
 #include <QColorDialog>
 #include <QTextCursor>
 #include <QTextCharFormat>
+#include <QFontDialog>
 
 void setupUi(QWidget*);
 void leader(QTabWidget*, QTextBrowser*&);
 void change_color(QTabWidget*, QTextBrowser*);
+void changeFont(QTabWidget* tabWidget, const QFont& font);
 
 int main(int argc, char *argv[])
 {
@@ -50,6 +52,19 @@ void setupUi(QWidget *windows)
     // Tab 3 - 組員2
     QWidget* tab_2 = new QWidget;
     tab_2->setObjectName("tab2");
+    QVBoxLayout* layout_2 = new QVBoxLayout(tab_2);
+    QPushButton* button = new QPushButton("Font select", tab_2);
+    //加入點按鈕的事件
+    QObject::connect(button, &QPushButton::clicked, [=]() {
+        bool ok;
+        QFont font = QFontDialog::getFont(&ok, QFont(), windows);
+        if (ok) {
+            //會改變字體 NICE
+            changeFont(tabWidget, font);
+        }
+    });
+    layout_2->addWidget(button);
+    tab_2->setLayout(layout_2);
     tabWidget->addTab(tab_2, "組員2");
 
     // Tab 3 - 組員3
@@ -79,15 +94,22 @@ void leader(QTabWidget* tabWidget, QTextBrowser*& leaderTextBrowser) {
     leaderTextBrowser = new QTextBrowser(tab);
     leaderTextBrowser->setObjectName("textBrowser");
     leaderTextBrowser->setText("\n\n"
-        "隊長:   41243122 林建全\n"
-        "組員1: 41243101 伍翊瑄\n"
-        "組員2: 41243129 張帟淇\n"
-        "組員3: 41243249 劉仲恩" "");
+                               "隊長:   41243122 林建全\n"
+                               "組員1: 41243101 伍翊瑄\n"
+                               "組員2: 41243129 張帟淇\n"
+                               "組員3: 41243249 劉仲恩" "");
 
     tabLayout->addWidget(leaderTextBrowser);
 
     tab->setLayout(tabLayout);
     tabWidget->addTab(tab, "隊長");
 }
-
-
+void changeFont(QTabWidget* tabWidget, const QFont& font) {     //這是改變字體的函式  GOOD
+    for (int i = 0; i < tabWidget->count(); ++i) {
+        QWidget* tab = tabWidget->widget(i);
+        QTextBrowser* textBrowser = tab->findChild<QTextBrowser*>();
+        if (textBrowser) {
+            textBrowser->setFont(font);
+        }
+    }
+}
